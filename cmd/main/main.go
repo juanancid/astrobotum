@@ -47,8 +47,8 @@ func main() {
 	// Add systems
 	world.AddSystem(&systems.InputSystem{})
 	world.AddSystem(&systems.MovementSystem{})
+	world.AddSystem(&systems.BoundarySystem{ScreenWidth: 320, ScreenHeight: 240}) // Screen dimensions
 	renderingSystem := &systems.RenderingSystem{}
-	// Note: RenderingSystem is not added to the World since it’s invoked separately
 
 	// Start the game
 	game := &Game{
