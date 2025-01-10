@@ -12,7 +12,9 @@ type Entity int
 
 type Component interface{}
 
-type System interface{}
+type System interface {
+	Update(w *World, dt float64)
+}
 
 func NewWorld() *World {
 	return &World{
@@ -40,6 +42,16 @@ func (w *World) GetComponent(entity Entity, componentType reflect.Type) Componen
 	return w.components[componentType][entity]
 }
 
+func (w *World) GetComponents(componentType reflect.Type) map[Entity]Component {
+	return w.components[componentType]
+}
+
 func (w *World) AddSystem(s System) {
 	w.systems = append(w.systems, s)
+}
+
+func (w *World) UpdateSystems(dt float64) {
+	for _, s := range w.systems {
+		s.Update(w, dt)
+	}
 }
