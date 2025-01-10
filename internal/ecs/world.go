@@ -59,3 +59,12 @@ func (w *World) UpdateSystems(dt float64) {
 func (w *World) GetSystems() []System {
 	return w.systems
 }
+
+func (w *World) GetSystem(target System) System {
+	for _, system := range w.systems {
+		if reflect.TypeOf(system) == reflect.TypeOf(target) {
+			return system
+		}
+	}
+	return nil // Return nil if the system isn't found
+}

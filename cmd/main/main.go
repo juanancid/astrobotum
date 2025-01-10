@@ -19,6 +19,13 @@ type Game struct {
 
 func (g *Game) Update() error {
 	dt := 1.0 / 60.0 // Assume a fixed frame rate for simplicity
+
+	// Retrieve and save previous positions for collision handling
+	if collisionSystem := g.world.GetSystem(&systems.CollisionSystem{}); collisionSystem != nil {
+		cs := collisionSystem.(*systems.CollisionSystem) // Type assertion
+		cs.SavePreviousPositions(g.world)
+	}
+
 	g.world.UpdateSystems(dt)
 	return nil
 }
@@ -56,7 +63,8 @@ func main() {
 	world.AddSystem(&systems.InputSystem{})
 	world.AddSystem(&systems.MovementSystem{})
 	world.AddSystem(&systems.BoundarySystem{ScreenWidth: 320, ScreenHeight: 240}) // Screen dimensions
-	world.AddSystem(&systems.CollisionSystem{})
+	collisionSystem := systems.NewCollisionSystem()
+	world.AddSystem(collisionSystem)
 
 	renderingSystem := &systems.RenderingSystem{}
 
