@@ -55,3 +55,7 @@ func (w *World) UpdateSystems(dt float64) {
 		s.Update(w, dt)
 	}
 }
+
+func (w *World) GetSystems() []System {
+	return w.systems
+}
