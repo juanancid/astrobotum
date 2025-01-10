@@ -15,10 +15,21 @@ import (
 type RenderingSystem struct{}
 
 func (rs *RenderingSystem) Render(w *ecs.World, screen *ebiten.Image) {
-	for _, component := range w.GetComponents(reflect.TypeOf(&components.Position{})) {
-		position := component.(*components.Position)
+	positions := w.GetComponents(reflect.TypeOf(&components.Position{}))
+	sizes := w.GetComponents(reflect.TypeOf(&components.Size{}))
 
-		// Draw a simple rectangle for the entity
-		ebitenutil.DrawRect(screen, position.X, position.Y, 16, 16, color.White)
+	for entity, pos := range positions {
+		position := pos.(*components.Position)
+
+		// Check if the entity has a Size component
+		size, hasSize := sizes[entity]
+		width, height := 16.0, 16.0 // Default size if no Size component is present
+		if hasSize {
+			width = size.(*components.Size).Width
+			height = size.(*components.Size).Height
+		}
+
+		// Render the entity
+		ebitenutil.DrawRect(screen, position.X, position.Y, width, height, color.White)
 	}
 }
