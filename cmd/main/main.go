@@ -53,11 +53,13 @@ func main() {
 	world.AddComponent(player, &components.Size{Width: 16, Height: 16}) // Entity dimensions
 	world.AddComponent(player, &components.PlayerControlled{})          // Mark as player-controlled
 
-	// Create a wall
-	wall := world.AddEntity()
-	world.AddComponent(wall, &components.Position{X: 200, Y: 56})      // Positioned near the player
-	world.AddComponent(wall, &components.Velocity{DX: 0, DY: 0})       // Initial velocity
-	world.AddComponent(wall, &components.Size{Width: 32, Height: 128}) // Wall dimensions
+	// Add static obstacles
+	for i := 0; i < 3; i++ {
+		obstacle := world.AddEntity()
+		world.AddComponent(obstacle, &components.Position{X: float64(100 + i*50), Y: 150})
+		world.AddComponent(obstacle, &components.Size{Width: 32, Height: 32})
+		world.AddComponent(obstacle, &components.StaticObstacle{})
+	}
 
 	// Create collectible entities
 	for i := 0; i < 5; i++ {

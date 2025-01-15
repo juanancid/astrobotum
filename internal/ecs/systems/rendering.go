@@ -17,7 +17,6 @@ type RenderingSystem struct{}
 func (rs *RenderingSystem) Render(w *ecs.World, screen *ebiten.Image) {
 	positions := w.GetComponents(reflect.TypeOf(&components.Position{}))
 	sizes := w.GetComponents(reflect.TypeOf(&components.Size{}))
-	collectibles := w.GetComponents(reflect.TypeOf(&components.Collectible{}))
 
 	for entity, pos := range positions {
 		position := pos.(*components.Position)
@@ -33,15 +32,10 @@ func (rs *RenderingSystem) Render(w *ecs.World, screen *ebiten.Image) {
 		var itemColor color.Color
 		itemColor = color.White
 
-		_, isCollectible := collectibles[entity]
-		if isCollectible {
-			// itemColor is yellow
-			itemColor = color.RGBA{
-				R: 234,
-				G: 239,
-				B: 44,
-				A: 0,
-			}
+		if _, isObstacle := w.GetComponent(entity, reflect.TypeOf(&components.StaticObstacle{})).(*components.StaticObstacle); isObstacle {
+			itemColor = color.RGBA{128, 128, 128, 255}
+		} else if _, isCollectible := w.GetComponent(entity, reflect.TypeOf(&components.Collectible{})).(*components.Collectible); isCollectible {
+			itemColor = color.RGBA{R: 234, G: 239, B: 44, A: 0}
 		}
 
 		// Render the entity

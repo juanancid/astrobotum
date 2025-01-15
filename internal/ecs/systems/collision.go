@@ -32,23 +32,28 @@ func (cs *CollisionSystem) SavePreviousPositions(w *ecs.World) {
 func (cs *CollisionSystem) Update(w *ecs.World, dt float64) {
 	positions := w.GetComponents(reflect.TypeOf(&components.Position{}))
 	sizes := w.GetComponents(reflect.TypeOf(&components.Size{}))
+	staticObstacles := w.GetComponents(reflect.TypeOf(&components.StaticObstacle{}))
 
-	// Check collisions
 	for e1, pos1 := range positions {
 		size1 := sizes[e1].(*components.Size)
 		for e2, pos2 := range positions {
 			if e1 == e2 {
 				continue
 			}
+
 			size2 := sizes[e2].(*components.Size)
 
-			// Use the saved previous position for collision checks
-			if isSweptColliding(cs.previousPositions[e1], pos1.(*components.Position), size1, pos2.(*components.Position), size2) {
-				// Rollback to the previous position
-				if prevPos, exists := cs.previousPositions[e1]; exists {
-					pos1.(*components.Position).X = prevPos.X
-					pos1.(*components.Position).Y = prevPos.Y
-					break
+			// Check if the second entity is a static obstacle
+			if _, isObstacle := staticObstacles[e2]; isObstacle {
+				// Handle player collisions with static obstacles
+				if _, isPlayer := w.GetComponent(e1, reflect.TypeOf(&components.PlayerControlled{})).(*components.PlayerControlled); isPlayer {
+					if isColliding(pos1.(*components.Position), size1, pos2.(*components.Position), size2) {
+						// Rollback the player's position
+						if prevPos, exists := cs.previousPositions[e1]; exists {
+							pos1.(*components.Position).X = prevPos.X
+							pos1.(*components.Position).Y = prevPos.Y
+						}
+					}
 				}
 			}
 		}

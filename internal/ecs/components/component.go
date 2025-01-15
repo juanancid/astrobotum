@@ -22,3 +22,6 @@ type PlayerControlled struct{}
 type Collectible struct {
 	Value int // Points or value associated with the collectible
 }
+
+// StaticObstacle marks an entity as an immovable object.
+type StaticObstacle struct{}
