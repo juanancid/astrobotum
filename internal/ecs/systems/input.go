@@ -13,7 +13,11 @@ import (
 type InputSystem struct{}
 
 func (is *InputSystem) Update(w *ecs.World, dt float64) {
-	for entity := range w.GetComponents(reflect.TypeOf(&components.Position{})) {
+	// Get all entities with the PlayerControlled component
+	playerControlledEntities := w.GetComponents(reflect.TypeOf(&components.PlayerControlled{}))
+
+	for entity := range playerControlledEntities {
+		// Ensure the entity has a Velocity component
 		velocity := w.GetComponent(entity, reflect.TypeOf(&components.Velocity{})).(*components.Velocity)
 
 		// Reset velocity

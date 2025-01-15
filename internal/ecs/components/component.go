@@ -9,3 +9,19 @@ type Position struct {
 type Velocity struct {
 	DX, DY float64
 }
+
+// Size defines the width and height of an entity.
+type Size struct {
+	Width, Height float64
+}
+
+// PlayerControlled marks an entity as being controlled by the player.
+type PlayerControlled struct{}
+
+// Collectible marks an entity as an item the player can collect.
+type Collectible struct {
+	Value int // Points or value associated with the collectible
+}
+
+// StaticObstacle marks an entity as an immovable object.
+type StaticObstacle struct{}
