@@ -69,10 +69,21 @@ func main() {
 		world.AddComponent(collectible, &components.Collectible{Value: 10})
 	}
 
+	// Create dynamic obstacles
+	for i := 0; i < 3; i++ {
+		obstacle := world.AddEntity()
+		world.AddComponent(obstacle, &components.Position{X: float64(50 + i*80), Y: 100})
+		world.AddComponent(obstacle, &components.Velocity{DX: float64((i + 1) * 20), DY: 0}) // Horizontal movement
+		world.AddComponent(obstacle, &components.Size{Width: 16, Height: 16})
+		world.AddComponent(obstacle, &components.DynamicObstacle{Damage: 10}) // Inflicts 10 damage on collision
+	}
+
 	// Add systems
 	world.AddSystem(&systems.InputSystem{})
 	world.AddSystem(&systems.MovementSystem{})
 	world.AddSystem(&systems.BoundarySystem{ScreenWidth: 320, ScreenHeight: 240}) // Screen dimensions
+	dynamicObstacleCollisionSystem := &systems.DynamicObstacleCollisionSystem{PlayerEntity: player}
+	world.AddSystem(dynamicObstacleCollisionSystem)
 	collectibleSystem := &systems.CollectibleSystem{PlayerEntity: player}
 	world.AddSystem(collectibleSystem)
 	collisionSystem := systems.NewCollisionSystem()
