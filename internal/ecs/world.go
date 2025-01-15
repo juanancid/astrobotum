@@ -30,6 +30,17 @@ func (w *World) AddEntity() Entity {
 	return id
 }
 
+func (w *World) RemoveEntity(entity Entity) {
+	// Remove the entity's components from each component map
+	for componentType, entityMap := range w.components {
+		delete(entityMap, entity)
+		// Clean up empty maps to save memory
+		if len(entityMap) == 0 {
+			delete(w.components, componentType)
+		}
+	}
+}
+
 func (w *World) AddComponent(entity Entity, component Component) {
 	componentType := reflect.TypeOf(component)
 	if w.components[componentType] == nil {

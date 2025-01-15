@@ -59,10 +59,20 @@ func main() {
 	world.AddComponent(wall, &components.Velocity{DX: 0, DY: 0})       // Initial velocity
 	world.AddComponent(wall, &components.Size{Width: 32, Height: 128}) // Wall dimensions
 
+	// Create collectible entities
+	for i := 0; i < 5; i++ {
+		collectible := world.AddEntity()
+		world.AddComponent(collectible, &components.Position{X: float64(50 + i*40), Y: 100})
+		world.AddComponent(collectible, &components.Size{Width: 16, Height: 16})
+		world.AddComponent(collectible, &components.Collectible{Value: 10})
+	}
+
 	// Add systems
 	world.AddSystem(&systems.InputSystem{})
 	world.AddSystem(&systems.MovementSystem{})
 	world.AddSystem(&systems.BoundarySystem{ScreenWidth: 320, ScreenHeight: 240}) // Screen dimensions
+	collectibleSystem := &systems.CollectibleSystem{PlayerEntity: player}
+	world.AddSystem(collectibleSystem)
 	collisionSystem := systems.NewCollisionSystem()
 	world.AddSystem(collisionSystem)
 

@@ -17,3 +17,8 @@ type Size struct {
 
 // PlayerControlled marks an entity as being controlled by the player.
 type PlayerControlled struct{}
+
+// Collectible marks an entity as an item the player can collect.
+type Collectible struct {
+	Value int // Points or value associated with the collectible
+}
