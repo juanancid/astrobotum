@@ -1,11 +1,15 @@
 package ecs
 
-import "reflect"
+import (
+	"github.com/hajimehoshi/ebiten/v2"
+	"reflect"
+)
 
 type World struct {
 	nextEntityID Entity
 	components   map[reflect.Type]map[Entity]Component
 	systems      []System
+	renderables  []Renderable
 }
 
 type Entity int
@@ -14,6 +18,10 @@ type Component interface{}
 
 type System interface {
 	Update(w *World, dt float64)
+}
+
+type Renderable interface {
+	Render(world *World, screen *ebiten.Image)
 }
 
 func NewWorld() *World {
@@ -78,4 +86,14 @@ func (w *World) GetSystem(target System) System {
 		}
 	}
 	return nil // Return nil if the system isn't found
+}
+
+func (w *World) AddRenderable(r Renderable) {
+	w.renderables = append(w.renderables, r)
+}
+
+func (w *World) Render(screen *ebiten.Image) {
+	for _, r := range w.renderables {
+		r.Render(w, screen)
+	}
 }

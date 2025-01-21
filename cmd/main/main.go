@@ -13,8 +13,7 @@ import (
 
 // Game represents the overall game state.
 type Game struct {
-	world           *ecs.World
-	renderingSystem *systems.RenderingSystem
+	world *ecs.World
 }
 
 func (g *Game) Update() error {
@@ -41,8 +40,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Clear the screen
 	screen.Fill(color.RGBA{0, 0, 0, 255}) // Black background
 
-	// Call the rendering system's Render method
-	g.renderingSystem.Render(g.world, screen)
+	// Render all renderable systems
+	g.world.Render(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -100,11 +99,13 @@ func main() {
 	world.AddSystem(healthSystem)
 
 	renderingSystem := &systems.RenderingSystem{}
+	world.AddRenderable(renderingSystem)
+	healthBarSystem := &systems.HealthBarSystem{PlayerEntity: player}
+	world.AddRenderable(healthBarSystem)
 
 	// Start the game
 	game := &Game{
-		world:           world,
-		renderingSystem: renderingSystem,
+		world: world,
 	}
 	ebiten.SetWindowSize(640, 480) // Window size
 	ebiten.SetWindowTitle("Astrobotum")
