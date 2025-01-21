@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"astrobotum/internal/ecs"
-	"astrobotum/internal/ecs/components"
+	"github.com/juanancid/astrobotum/internal/ecs"
+	"github.com/juanancid/astrobotum/internal/ecs/components"
 )
 
 // DynamicObstacleCollisionSystem handles collisions between the player and dynamic obstacles.

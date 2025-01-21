@@ -1,10 +1,11 @@
 package systems
 
 import (
-	"astrobotum/internal/ecs"
-	"astrobotum/internal/ecs/components"
 	"fmt"
 	"reflect"
+
+	"github.com/juanancid/astrobotum/internal/ecs"
+	"github.com/juanancid/astrobotum/internal/ecs/components"
 )
 
 // CollectibleSystem handles interactions between the player and collectibles.

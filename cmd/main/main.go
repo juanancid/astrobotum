@@ -6,9 +6,9 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"astrobotum/internal/ecs"
-	"astrobotum/internal/ecs/components"
-	"astrobotum/internal/ecs/systems"
+	"github.com/juanancid/astrobotum/internal/ecs"
+	"github.com/juanancid/astrobotum/internal/ecs/components"
+	"github.com/juanancid/astrobotum/internal/ecs/systems"
 )
 
 // Game represents the overall game state.

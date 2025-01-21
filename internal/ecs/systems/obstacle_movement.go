@@ -1,9 +1,10 @@
 package systems
 
 import (
-	"astrobotum/internal/ecs"
-	"astrobotum/internal/ecs/components"
 	"reflect"
+
+	"github.com/juanancid/astrobotum/internal/ecs"
+	"github.com/juanancid/astrobotum/internal/ecs/components"
 )
 
 // DynamicObstacleMovementSystem updates the position of dynamic obstacles based on velocity.
