@@ -30,3 +30,9 @@ type StaticObstacle struct{}
 type DynamicObstacle struct {
 	Damage int // Damage inflicted on the player upon collision
 }
+
+// Health tracks an entity's current and maximum health.
+type Health struct {
+	CurrentHealth int
+	MaxHealth     int
+}

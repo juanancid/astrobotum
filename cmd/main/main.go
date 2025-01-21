@@ -27,6 +27,13 @@ func (g *Game) Update() error {
 	}
 
 	g.world.UpdateSystems(dt)
+
+	// Check if the game is over
+	healthSystem := g.world.GetSystem(&systems.HealthSystem{}).(*systems.HealthSystem)
+	if healthSystem.GameOver {
+		return ebiten.Termination
+	}
+
 	return nil
 }
 
@@ -48,10 +55,11 @@ func main() {
 
 	// Create the player entity and add components
 	player := world.AddEntity()
-	world.AddComponent(player, &components.Position{X: 160, Y: 120})    // Centered position
-	world.AddComponent(player, &components.Velocity{DX: 0, DY: 0})      // Initial velocity
-	world.AddComponent(player, &components.Size{Width: 16, Height: 16}) // Entity dimensions
-	world.AddComponent(player, &components.PlayerControlled{})          // Mark as player-controlled
+	world.AddComponent(player, &components.Position{X: 160, Y: 120})                   // Centered position
+	world.AddComponent(player, &components.Velocity{DX: 0, DY: 0})                     // Initial velocity
+	world.AddComponent(player, &components.Size{Width: 16, Height: 16})                // Entity dimensions
+	world.AddComponent(player, &components.PlayerControlled{})                         // Mark as player-controlled
+	world.AddComponent(player, &components.Health{CurrentHealth: 100, MaxHealth: 100}) // Health component
 
 	// Add static obstacles
 	for i := 0; i < 3; i++ {
@@ -88,6 +96,8 @@ func main() {
 	world.AddSystem(collectibleSystem)
 	collisionSystem := systems.NewCollisionSystem()
 	world.AddSystem(collisionSystem)
+	healthSystem := &systems.HealthSystem{PlayerEntity: player}
+	world.AddSystem(healthSystem)
 
 	renderingSystem := &systems.RenderingSystem{}
 
