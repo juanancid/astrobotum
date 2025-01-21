@@ -11,3 +11,7 @@ Astrobotum is a retro-style 2D platformer built with Go and Ebitengine. This pro
 ## Goals for the second iteration
 
 - Collision detection.
+
+## Goals for the third iteration
+
+- Create dynamic obstacles.

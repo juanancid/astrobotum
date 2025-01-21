@@ -25,3 +25,8 @@ type Collectible struct {
 
 // StaticObstacle marks an entity as an immovable object.
 type StaticObstacle struct{}
+
+// DynamicObstacle marks an entity as a moving obstacle or hazard.
+type DynamicObstacle struct {
+	Damage int // Damage inflicted on the player upon collision
+}
