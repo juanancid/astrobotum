@@ -36,3 +36,8 @@ type Health struct {
 	CurrentHealth int
 	MaxHealth     int
 }
+
+// HealingCollectible marks an entity as a collectible that restores health.
+type HealingCollectible struct {
+	HealAmount int // Amount of health restored upon collection
+}

@@ -76,6 +76,15 @@ func main() {
 		world.AddComponent(collectible, &components.Collectible{Value: 10})
 	}
 
+	// Create healing items
+	for i := 0; i < 3; i++ {
+		healingItem := world.AddEntity()
+		world.AddComponent(healingItem, &components.Position{X: float64(100 + i*50), Y: 200})
+		world.AddComponent(healingItem, &components.Size{Width: 16, Height: 16})
+		world.AddComponent(healingItem, &components.Collectible{Value: 10})
+		world.AddComponent(healingItem, &components.HealingCollectible{HealAmount: 20})
+	}
+
 	// Create dynamic obstacles
 	for i := 0; i < 3; i++ {
 		obstacle := world.AddEntity()
