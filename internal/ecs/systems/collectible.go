@@ -1,10 +1,11 @@
 package systems
 
 import (
-	"astrobotum/internal/ecs"
-	"astrobotum/internal/ecs/components"
 	"fmt"
 	"reflect"
+
+	"github.com/juanancid/astrobotum/internal/ecs"
+	"github.com/juanancid/astrobotum/internal/ecs/components"
 )
 
 // CollectibleSystem handles interactions between the player and collectibles.
@@ -16,8 +17,10 @@ type CollectibleSystem struct {
 func (cs *CollectibleSystem) Update(w *ecs.World, dt float64) {
 	playerPos := w.GetComponent(cs.PlayerEntity, reflect.TypeOf(&components.Position{})).(*components.Position)
 	playerSize := w.GetComponent(cs.PlayerEntity, reflect.TypeOf(&components.Size{})).(*components.Size)
+	playerHealth := w.GetComponent(cs.PlayerEntity, reflect.TypeOf(&components.Health{})).(*components.Health)
 
 	collectibles := w.GetComponents(reflect.TypeOf(&components.Collectible{}))
+	healingCollectibles := w.GetComponents(reflect.TypeOf(&components.HealingCollectible{}))
 	positions := w.GetComponents(reflect.TypeOf(&components.Position{}))
 	sizes := w.GetComponents(reflect.TypeOf(&components.Size{}))
 
@@ -30,6 +33,17 @@ func (cs *CollectibleSystem) Update(w *ecs.World, dt float64) {
 			collectible := collectibles[entity].(*components.Collectible)
 			cs.Score += collectible.Value
 			fmt.Printf("Collected item! New score: %d\n", cs.Score)
+
+			// Check if the collectible is a healing item
+			heal, ok := healingCollectibles[entity]
+			if ok {
+				playerHealth.CurrentHealth += heal.(*components.HealingCollectible).HealAmount
+
+				// Cap health at maximum
+				if playerHealth.CurrentHealth > playerHealth.MaxHealth {
+					playerHealth.CurrentHealth = playerHealth.MaxHealth
+				}
+			}
 
 			// Remove the collectible entity
 			w.RemoveEntity(entity)

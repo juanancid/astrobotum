@@ -7,8 +7,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
-	"astrobotum/internal/ecs"
-	"astrobotum/internal/ecs/components"
+	"github.com/juanancid/astrobotum/internal/ecs"
+	"github.com/juanancid/astrobotum/internal/ecs/components"
 )
 
 // RenderingSystem draws entities based on their Position.
@@ -34,10 +34,12 @@ func (rs *RenderingSystem) Render(w *ecs.World, screen *ebiten.Image) {
 
 		if _, isObstacle := w.GetComponent(entity, reflect.TypeOf(&components.StaticObstacle{})).(*components.StaticObstacle); isObstacle {
 			itemColor = color.RGBA{R: 128, G: 128, B: 128, A: 255}
+		} else if _, isHealing := w.GetComponent(entity, reflect.TypeOf(&components.HealingCollectible{})).(*components.HealingCollectible); isHealing {
+			itemColor = color.RGBA{R: 0, G: 255, B: 0, A: 0}
 		} else if _, isCollectible := w.GetComponent(entity, reflect.TypeOf(&components.Collectible{})).(*components.Collectible); isCollectible {
 			itemColor = color.RGBA{R: 234, G: 239, B: 44, A: 0}
 		} else if _, isDynamicObstacle := w.GetComponent(entity, reflect.TypeOf(&components.DynamicObstacle{})).(*components.DynamicObstacle); isDynamicObstacle {
-			itemColor = color.RGBA{R: 0, G: 255, B: 0, A: 0}
+			itemColor = color.RGBA{R: 255, G: 0, B: 0, A: 0}
 		}
 
 		// Render the entity

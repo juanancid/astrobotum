@@ -3,8 +3,8 @@ package systems
 import (
 	"reflect"
 
-	"astrobotum/internal/ecs"
-	"astrobotum/internal/ecs/components"
+	"github.com/juanancid/astrobotum/internal/ecs"
+	"github.com/juanancid/astrobotum/internal/ecs/components"
 )
 
 // BoundarySystem enforces screen boundaries for entities with a Position component.

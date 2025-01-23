@@ -1,4 +1,4 @@
-module astrobotum
+module github.com/juanancid/astrobotum
 
 go 1.23.4
 

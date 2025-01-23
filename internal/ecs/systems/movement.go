@@ -3,8 +3,8 @@ package systems
 import (
 	"reflect"
 
-	"astrobotum/internal/ecs"
-	"astrobotum/internal/ecs/components"
+	"github.com/juanancid/astrobotum/internal/ecs"
+	"github.com/juanancid/astrobotum/internal/ecs/components"
 )
 
 // MovementSystem updates entities' positions based on their velocity.

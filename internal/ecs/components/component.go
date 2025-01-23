@@ -30,3 +30,19 @@ type StaticObstacle struct{}
 type DynamicObstacle struct {
 	Damage int // Damage inflicted on the player upon collision
 }
+
+// Health tracks an entity's current and maximum health.
+type Health struct {
+	CurrentHealth int
+	MaxHealth     int
+}
+
+// HealingCollectible marks an entity as a collectible that restores health.
+type HealingCollectible struct {
+	HealAmount int // Amount of health restored upon collection
+}
+
+// Score tracks the player's current score.
+type Score struct {
+	Points int // Total points accumulated
+}

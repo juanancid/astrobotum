@@ -3,18 +3,18 @@ package main
 import (
 	"image/color"
 	"log"
+	"reflect"
 
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"astrobotum/internal/ecs"
-	"astrobotum/internal/ecs/components"
-	"astrobotum/internal/ecs/systems"
+	"github.com/juanancid/astrobotum/internal/ecs"
+	"github.com/juanancid/astrobotum/internal/ecs/components"
+	"github.com/juanancid/astrobotum/internal/ecs/systems"
 )
 
 // Game represents the overall game state.
 type Game struct {
-	world           *ecs.World
-	renderingSystem *systems.RenderingSystem
+	world *ecs.World
 }
 
 func (g *Game) Update() error {
@@ -27,6 +27,23 @@ func (g *Game) Update() error {
 	}
 
 	g.world.UpdateSystems(dt)
+
+	// Check if the game is over
+	healthSystem := g.world.GetSystem(&systems.HealthSystem{}).(*systems.HealthSystem)
+	if healthSystem.GameOver {
+		return ebiten.Termination
+	}
+
+	scoreSystem := g.world.GetSystem(&systems.ScoreSystem{}).(*systems.ScoreSystem)
+	if scoreSystem.Victory {
+		player := scoreSystem.PlayerEntity
+		victoryScreen := g.world.GetRenderable(&systems.VictoryScreen{}).(*systems.VictoryScreen)
+
+		victoryScreen.Active = true
+		victoryScreen.Score = g.world.GetComponent(player, reflect.TypeOf(&components.Score{})).(*components.Score).Points
+		return nil
+	}
+
 	return nil
 }
 
@@ -34,8 +51,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Clear the screen
 	screen.Fill(color.RGBA{0, 0, 0, 255}) // Black background
 
-	// Call the rendering system's Render method
-	g.renderingSystem.Render(g.world, screen)
+	// Render all renderable systems
+	g.world.Render(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -48,10 +65,12 @@ func main() {
 
 	// Create the player entity and add components
 	player := world.AddEntity()
-	world.AddComponent(player, &components.Position{X: 160, Y: 120})    // Centered position
-	world.AddComponent(player, &components.Velocity{DX: 0, DY: 0})      // Initial velocity
-	world.AddComponent(player, &components.Size{Width: 16, Height: 16}) // Entity dimensions
-	world.AddComponent(player, &components.PlayerControlled{})          // Mark as player-controlled
+	world.AddComponent(player, &components.Position{X: 160, Y: 120})                   // Centered position
+	world.AddComponent(player, &components.Velocity{DX: 0, DY: 0})                     // Initial velocity
+	world.AddComponent(player, &components.Size{Width: 16, Height: 16})                // Entity dimensions
+	world.AddComponent(player, &components.PlayerControlled{})                         // Mark as player-controlled
+	world.AddComponent(player, &components.Health{CurrentHealth: 100, MaxHealth: 100}) // Health component
+	world.AddComponent(player, &components.Score{Points: 0})                           // Score
 
 	// Add static obstacles
 	for i := 0; i < 3; i++ {
@@ -67,6 +86,15 @@ func main() {
 		world.AddComponent(collectible, &components.Position{X: float64(50 + i*40), Y: 100})
 		world.AddComponent(collectible, &components.Size{Width: 16, Height: 16})
 		world.AddComponent(collectible, &components.Collectible{Value: 10})
+	}
+
+	// Create healing items
+	for i := 0; i < 3; i++ {
+		healingItem := world.AddEntity()
+		world.AddComponent(healingItem, &components.Position{X: float64(100 + i*50), Y: 200})
+		world.AddComponent(healingItem, &components.Size{Width: 16, Height: 16})
+		world.AddComponent(healingItem, &components.Collectible{Value: 10})
+		world.AddComponent(healingItem, &components.HealingCollectible{HealAmount: 20})
 	}
 
 	// Create dynamic obstacles
@@ -88,13 +116,23 @@ func main() {
 	world.AddSystem(collectibleSystem)
 	collisionSystem := systems.NewCollisionSystem()
 	world.AddSystem(collisionSystem)
+	healthSystem := &systems.HealthSystem{PlayerEntity: player}
+	world.AddSystem(healthSystem)
+	scoreSystem := &systems.ScoreSystem{PlayerEntity: player, TargetScore: 100}
+	world.AddSystem(scoreSystem)
 
 	renderingSystem := &systems.RenderingSystem{}
+	world.AddRenderable(renderingSystem)
+	healthBarSystem := &systems.HealthBarSystem{PlayerEntity: player}
+	world.AddRenderable(healthBarSystem)
+	scoreRenderer := &systems.ScoreRenderer{PlayerEntity: player}
+	world.AddRenderable(scoreRenderer)
+	victoryScreen := &systems.VictoryScreen{}
+	world.AddRenderable(victoryScreen)
 
 	// Start the game
 	game := &Game{
-		world:           world,
-		renderingSystem: renderingSystem,
+		world: world,
 	}
 	ebiten.SetWindowSize(640, 480) // Window size
 	ebiten.SetWindowTitle("Astrobotum")

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"astrobotum/internal/ecs"
-	"astrobotum/internal/ecs/components"
+	"github.com/juanancid/astrobotum/internal/ecs"
+	"github.com/juanancid/astrobotum/internal/ecs/components"
 )
 
 // DynamicObstacleCollisionSystem handles collisions between the player and dynamic obstacles.
@@ -30,7 +30,10 @@ func (docs *DynamicObstacleCollisionSystem) Update(w *ecs.World, dt float64) {
 			dynamic := dynamicObstacles[entity].(*components.DynamicObstacle)
 			fmt.Printf("Player collided with obstacle! Damage: %d\n", dynamic.Damage)
 
-			// TODO: Add health reduction or game-over logic here
+			// Reduce player health
+			health := w.GetComponent(docs.PlayerEntity, reflect.TypeOf(&components.Health{})).(*components.Health)
+			health.CurrentHealth -= dynamic.Damage
+			fmt.Printf("Player health: %d/%d\n", health.CurrentHealth, health.MaxHealth)
 		}
 	}
 }
