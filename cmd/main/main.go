@@ -59,6 +59,7 @@ func main() {
 	world.AddComponent(player, &components.Size{Width: 16, Height: 16})                // Entity dimensions
 	world.AddComponent(player, &components.PlayerControlled{})                         // Mark as player-controlled
 	world.AddComponent(player, &components.Health{CurrentHealth: 100, MaxHealth: 100}) // Health component
+	world.AddComponent(player, &components.Score{Points: 0})                           // Score
 
 	// Add static obstacles
 	for i := 0; i < 3; i++ {
@@ -106,11 +107,15 @@ func main() {
 	world.AddSystem(collisionSystem)
 	healthSystem := &systems.HealthSystem{PlayerEntity: player}
 	world.AddSystem(healthSystem)
+	scoreSystem := &systems.ScoreSystem{PlayerEntity: player}
+	world.AddSystem(scoreSystem)
 
 	renderingSystem := &systems.RenderingSystem{}
 	world.AddRenderable(renderingSystem)
 	healthBarSystem := &systems.HealthBarSystem{PlayerEntity: player}
 	world.AddRenderable(healthBarSystem)
+	scoreRenderer := &systems.ScoreRenderer{PlayerEntity: player}
+	world.AddRenderable(scoreRenderer)
 
 	// Start the game
 	game := &Game{

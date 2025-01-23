@@ -41,3 +41,8 @@ type Health struct {
 type HealingCollectible struct {
 	HealAmount int // Amount of health restored upon collection
 }
+
+// Score tracks the player's current score.
+type Score struct {
+	Points int // Total points accumulated
+}
