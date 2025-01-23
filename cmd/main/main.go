@@ -3,6 +3,7 @@ package main
 import (
 	"image/color"
 	"log"
+	"reflect"
 
 	"github.com/hajimehoshi/ebiten/v2"
 
@@ -31,6 +32,16 @@ func (g *Game) Update() error {
 	healthSystem := g.world.GetSystem(&systems.HealthSystem{}).(*systems.HealthSystem)
 	if healthSystem.GameOver {
 		return ebiten.Termination
+	}
+
+	scoreSystem := g.world.GetSystem(&systems.ScoreSystem{}).(*systems.ScoreSystem)
+	if scoreSystem.Victory {
+		player := scoreSystem.PlayerEntity
+		victoryScreen := g.world.GetRenderable(&systems.VictoryScreen{}).(*systems.VictoryScreen)
+
+		victoryScreen.Active = true
+		victoryScreen.Score = g.world.GetComponent(player, reflect.TypeOf(&components.Score{})).(*components.Score).Points
+		return nil
 	}
 
 	return nil
@@ -107,7 +118,7 @@ func main() {
 	world.AddSystem(collisionSystem)
 	healthSystem := &systems.HealthSystem{PlayerEntity: player}
 	world.AddSystem(healthSystem)
-	scoreSystem := &systems.ScoreSystem{PlayerEntity: player}
+	scoreSystem := &systems.ScoreSystem{PlayerEntity: player, TargetScore: 100}
 	world.AddSystem(scoreSystem)
 
 	renderingSystem := &systems.RenderingSystem{}
@@ -116,6 +127,8 @@ func main() {
 	world.AddRenderable(healthBarSystem)
 	scoreRenderer := &systems.ScoreRenderer{PlayerEntity: player}
 	world.AddRenderable(scoreRenderer)
+	victoryScreen := &systems.VictoryScreen{}
+	world.AddRenderable(victoryScreen)
 
 	// Start the game
 	game := &Game{

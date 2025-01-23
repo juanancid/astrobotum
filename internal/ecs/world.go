@@ -92,6 +92,15 @@ func (w *World) AddRenderable(r Renderable) {
 	w.renderables = append(w.renderables, r)
 }
 
+func (w *World) GetRenderable(target Renderable) Renderable {
+	for _, renderable := range w.renderables {
+		if reflect.TypeOf(renderable) == reflect.TypeOf(target) {
+			return renderable
+		}
+	}
+	return nil // Return nil if the renderable isn't found
+}
+
 func (w *World) Render(screen *ebiten.Image) {
 	for _, r := range w.renderables {
 		r.Render(w, screen)
