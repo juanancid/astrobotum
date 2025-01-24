@@ -33,28 +33,35 @@ func (cs *CollisionSystem) SavePreviousPositions(w *ecs.World) {
 func (cs *CollisionSystem) Update(w *ecs.World, dt float64) {
 	positions := w.GetComponents(reflect.TypeOf(&components.Position{}))
 	sizes := w.GetComponents(reflect.TypeOf(&components.Size{}))
-	staticObstacles := w.GetComponents(reflect.TypeOf(&components.StaticObstacle{}))
+	grounds := w.GetComponents(reflect.TypeOf(&components.StaticObstacle{}))
 
-	for e1, pos1 := range positions {
-		size1 := sizes[e1].(*components.Size)
-		for e2, pos2 := range positions {
-			if e1 == e2 {
-				continue
-			}
+	for entity := range positions {
+		// Check if the entity has OnGround and Velocity components
+		onGround := w.GetComponent(entity, reflect.TypeOf(&components.OnGround{}))
+		if onGround == nil {
+			continue
+		}
+		grounded := onGround.(*components.OnGround)
 
-			size2 := sizes[e2].(*components.Size)
+		velocity := w.GetComponent(entity, reflect.TypeOf(&components.Velocity{})).(*components.Velocity)
+		entityPos := positions[entity].(*components.Position)
+		entitySize := sizes[entity].(*components.Size)
 
-			// Check if the second entity is a static obstacle
-			if _, isObstacle := staticObstacles[e2]; isObstacle {
-				// Handle player collisions with static obstacles
-				if _, isPlayer := w.GetComponent(e1, reflect.TypeOf(&components.PlayerControlled{})).(*components.PlayerControlled); isPlayer {
-					if isColliding(pos1.(*components.Position), size1, pos2.(*components.Position), size2) {
-						// Rollback the player's position
-						if prevPos, exists := cs.previousPositions[e1]; exists {
-							pos1.(*components.Position).X = prevPos.X
-							pos1.(*components.Position).Y = prevPos.Y
-						}
-					}
+		// Reset grounded state
+		grounded.IsGrounded = false
+
+		// Check for collisions with ground entities
+		for groundEntity := range grounds {
+			groundPos := positions[groundEntity].(*components.Position)
+			groundSize := sizes[groundEntity].(*components.Size)
+
+			if isColliding(entityPos, entitySize, groundPos, groundSize) {
+				// If colliding and falling, stop downward velocity and mark as grounded
+				if velocity.DY > 0 {
+					velocity.DY = 0
+					entityPos.Y = groundPos.Y - entitySize.Height // Align with the ground
+					grounded.IsGrounded = true
+					break
 				}
 			}
 		}

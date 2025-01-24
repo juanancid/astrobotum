@@ -31,6 +31,11 @@ type DynamicObstacle struct {
 	Damage int // Damage inflicted on the player upon collision
 }
 
+// OnGround indicates whether an entity is currently grounded.
+type OnGround struct {
+	IsGrounded bool
+}
+
 // Health tracks an entity's current and maximum health.
 type Health struct {
 	CurrentHealth int

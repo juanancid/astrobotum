@@ -22,7 +22,6 @@ func (is *InputSystem) Update(w *ecs.World, dt float64) {
 
 		// Reset velocity
 		velocity.DX = 0
-		velocity.DY = 0
 
 		// Update velocity based on key presses
 		if ebiten.IsKeyPressed(ebiten.KeyLeft) {
@@ -31,11 +30,12 @@ func (is *InputSystem) Update(w *ecs.World, dt float64) {
 		if ebiten.IsKeyPressed(ebiten.KeyRight) {
 			velocity.DX = 100 // Move right
 		}
-		if ebiten.IsKeyPressed(ebiten.KeyUp) {
-			velocity.DY = -100 // Move up
-		}
-		if ebiten.IsKeyPressed(ebiten.KeyDown) {
-			velocity.DY = 100 // Move down
+		if ebiten.IsKeyPressed(ebiten.KeySpace) {
+			onGround := w.GetComponent(entity, reflect.TypeOf(&components.OnGround{})).(*components.OnGround)
+
+			if onGround.IsGrounded { // Only allow jumping if the player is on the ground
+				velocity.DY = -50 // Apply an upward velocity
+			}
 		}
 	}
 }

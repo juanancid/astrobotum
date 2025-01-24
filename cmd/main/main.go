@@ -71,6 +71,7 @@ func main() {
 	world.AddComponent(player, &components.PlayerControlled{})                         // Mark as player-controlled
 	world.AddComponent(player, &components.Health{CurrentHealth: 100, MaxHealth: 100}) // Health component
 	world.AddComponent(player, &components.Score{Points: 0})                           // Score
+	world.AddComponent(player, &components.OnGround{IsGrounded: false})                // Grounded state
 
 	// Add static obstacles
 	for i := 0; i < 3; i++ {
@@ -120,6 +121,8 @@ func main() {
 	world.AddSystem(healthSystem)
 	scoreSystem := &systems.ScoreSystem{PlayerEntity: player, TargetScore: 100}
 	world.AddSystem(scoreSystem)
+	gravitySystem := &systems.GravitySystem{Gravity: 100}
+	world.AddSystem(gravitySystem)
 
 	renderingSystem := &systems.RenderingSystem{}
 	world.AddRenderable(renderingSystem)
