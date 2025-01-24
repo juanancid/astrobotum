@@ -65,7 +65,7 @@ func main() {
 
 	// Create the player entity and add components
 	player := world.AddEntity()
-	world.AddComponent(player, &components.Position{X: 160, Y: 120})                   // Centered position
+	world.AddComponent(player, &components.Position{X: 100, Y: 120})                   // Centered position
 	world.AddComponent(player, &components.Velocity{DX: 0, DY: 0})                     // Initial velocity
 	world.AddComponent(player, &components.Size{Width: 16, Height: 16})                // Entity dimensions
 	world.AddComponent(player, &components.PlayerControlled{})                         // Mark as player-controlled
@@ -80,6 +80,12 @@ func main() {
 		world.AddComponent(obstacle, &components.Size{Width: 32, Height: 32})
 		world.AddComponent(obstacle, &components.StaticObstacle{})
 	}
+
+	// Add ground
+	ground := world.AddEntity()
+	world.AddComponent(ground, &components.Position{X: 0, Y: 224})
+	world.AddComponent(ground, &components.Size{Width: 320, Height: 16})
+	world.AddComponent(ground, &components.StaticObstacle{})
 
 	// Create collectible entities
 	for i := 0; i < 5; i++ {
@@ -105,6 +111,7 @@ func main() {
 		world.AddComponent(obstacle, &components.Velocity{DX: float64((i + 1) * 20), DY: 0}) // Horizontal movement
 		world.AddComponent(obstacle, &components.Size{Width: 16, Height: 16})
 		world.AddComponent(obstacle, &components.DynamicObstacle{Damage: 10}) // Inflicts 10 damage on collision
+		world.AddComponent(obstacle, &components.OnGround{IsGrounded: false})
 	}
 
 	// Add systems
