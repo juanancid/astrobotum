@@ -50,22 +50,54 @@ func (cs *CollisionSystem) Update(w *ecs.World, dt float64) {
 		// Reset grounded state
 		grounded.IsGrounded = false
 
-		// Check for collisions with ground entities
 		for groundEntity := range grounds {
 			groundPos := positions[groundEntity].(*components.Position)
 			groundSize := sizes[groundEntity].(*components.Size)
 
 			if isColliding(entityPos, entitySize, groundPos, groundSize) {
-				// If colliding and falling, stop downward velocity and mark as grounded
-				if velocity.DY > 0 {
-					velocity.DY = 0
-					entityPos.Y = groundPos.Y - entitySize.Height // Align with the ground
-					grounded.IsGrounded = true
-					break
+				// Calculate overlap amounts
+				overlapX := calculateOverlap(entityPos.X, entitySize.Width, groundPos.X, groundSize.Width)
+				overlapY := calculateOverlap(entityPos.Y, entitySize.Height, groundPos.Y, groundSize.Height)
+
+				// Resolve the smaller overlap first (prioritize vertical collisions)
+				if abs(overlapY) < abs(overlapX) {
+					if velocity.DY > 0 { // Falling
+						entityPos.Y = groundPos.Y - entitySize.Height // Align with ground
+						velocity.DY = 0
+						grounded.IsGrounded = true
+					} else if velocity.DY < 0 { // Jumping and hitting ceiling
+						entityPos.Y = groundPos.Y + groundSize.Height
+						velocity.DY = 0
+					}
+				} else { // Horizontal collision
+					if velocity.DX > 0 { // Moving right
+						entityPos.X = groundPos.X - entitySize.Width
+					} else if velocity.DX < 0 { // Moving left
+						entityPos.X = groundPos.X + groundSize.Width
+					}
+					velocity.DX = 0 // Stop horizontal motion
 				}
+
+				break // Exit loop after handling one collision
 			}
 		}
 	}
+}
+
+// calculateOverlap calculates the overlap distance between two intervals.
+func calculateOverlap(pos1, size1, pos2, size2 float64) float64 {
+	if pos1 < pos2 {
+		return pos1 + size1 - pos2 // Overlap on the right
+	}
+	return pos1 - (pos2 + size2) // Overlap on the left
+}
+
+// abs returns the absolute value of a float64.
+func abs(value float64) float64 {
+	if value < 0 {
+		return -value
+	}
+	return value
 }
 
 func isColliding(pos1 *components.Position, size1 *components.Size, pos2 *components.Position, size2 *components.Size) bool {
@@ -73,11 +105,4 @@ func isColliding(pos1 *components.Position, size1 *components.Size, pos2 *compon
 		pos1.X+size1.Width > pos2.X &&
 		pos1.Y < pos2.Y+size2.Height &&
 		pos1.Y+size1.Height > pos2.Y
-}
-
-func isSweptColliding(
-	prevPos1, currPos1 *components.Position, size1 *components.Size,
-	pos2 *components.Position, size2 *components.Size,
-) bool {
-	return isColliding(prevPos1, size1, pos2, size2) || isColliding(currPos1, size1, pos2, size2)
 }
