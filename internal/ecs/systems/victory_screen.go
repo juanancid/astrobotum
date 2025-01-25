@@ -8,8 +8,9 @@ import (
 )
 
 type VictoryScreen struct {
-	Active bool // Indicates if the victory screen is active
-	Score  int  // Final score to display
+	PlayerEntity ecs.Entity
+	Active       bool // Indicates if the victory screen is active
+	Score        int  // Final score to display
 }
 
 func (vs *VictoryScreen) Render(w *ecs.World, screen *ebiten.Image) {

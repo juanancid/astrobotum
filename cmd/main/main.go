@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/juanancid/astrobotum/internal/levels"
 	"image/color"
 	"log"
 	"reflect"
-
-	"github.com/hajimehoshi/ebiten/v2"
 
 	"github.com/juanancid/astrobotum/internal/ecs"
 	"github.com/juanancid/astrobotum/internal/ecs/components"
@@ -36,11 +36,16 @@ func (g *Game) Update() error {
 
 	scoreSystem := g.world.GetSystem(&systems.ScoreSystem{}).(*systems.ScoreSystem)
 	if scoreSystem.Victory {
-		player := scoreSystem.PlayerEntity
-		victoryScreen := g.world.GetRenderable(&systems.VictoryScreen{}).(*systems.VictoryScreen)
+		if g.world.GetCurrentLevel() == 1 {
+			levels.LoadLevel2(g.world, scoreSystem.PlayerEntity)
+		} else {
+			player := scoreSystem.PlayerEntity
+			victoryScreen := g.world.GetRenderable(&systems.VictoryScreen{}).(*systems.VictoryScreen)
 
-		victoryScreen.Active = true
-		victoryScreen.Score = g.world.GetComponent(player, reflect.TypeOf(&components.Score{})).(*components.Score).Points
+			victoryScreen.Active = true
+			victoryScreen.Score = g.world.GetComponent(player, reflect.TypeOf(&components.Score{})).(*components.Score).Points
+		}
+
 		return nil
 	}
 
@@ -71,54 +76,10 @@ func main() {
 	world.AddComponent(player, &components.PlayerControlled{})                         // Mark as player-controlled
 	world.AddComponent(player, &components.Health{CurrentHealth: 100, MaxHealth: 100}) // Health component
 	world.AddComponent(player, &components.Score{Points: 0})                           // Score
-	world.AddComponent(player, &components.OnGround{IsGrounded: false})                // Grounded state
+	world.AddComponent(player, &components.OnGround{IsGrounded: false})
 
-	// Add static obstacles
-	for i := 0; i < 3; i++ {
-		obstacle := world.AddEntity()
-		world.AddComponent(obstacle, &components.Position{X: float64(100 + i*50), Y: 150})
-		world.AddComponent(obstacle, &components.Size{Width: 32, Height: 32})
-		world.AddComponent(obstacle, &components.StaticObstacle{})
-	}
-
-	// Add near-to-ground obstacle
-	obstacle := world.AddEntity()
-	world.AddComponent(obstacle, &components.Position{X: 50, Y: 200})
-	world.AddComponent(obstacle, &components.Size{Width: 64, Height: 16})
-	world.AddComponent(obstacle, &components.StaticObstacle{})
-
-	// Add ground
-	ground := world.AddEntity()
-	world.AddComponent(ground, &components.Position{X: 0, Y: 224})
-	world.AddComponent(ground, &components.Size{Width: 320, Height: 16})
-	world.AddComponent(ground, &components.StaticObstacle{})
-
-	// Create collectible entities
-	for i := 0; i < 5; i++ {
-		collectible := world.AddEntity()
-		world.AddComponent(collectible, &components.Position{X: float64(50 + i*40), Y: 100})
-		world.AddComponent(collectible, &components.Size{Width: 16, Height: 16})
-		world.AddComponent(collectible, &components.Collectible{Value: 10})
-	}
-
-	// Create healing items
-	for i := 0; i < 3; i++ {
-		healingItem := world.AddEntity()
-		world.AddComponent(healingItem, &components.Position{X: float64(150 + i*50), Y: 200})
-		world.AddComponent(healingItem, &components.Size{Width: 16, Height: 16})
-		world.AddComponent(healingItem, &components.Collectible{Value: 10})
-		world.AddComponent(healingItem, &components.HealingCollectible{HealAmount: 20})
-	}
-
-	// Create dynamic obstacles
-	for i := 0; i < 3; i++ {
-		dynamicObstacle := world.AddEntity()
-		world.AddComponent(dynamicObstacle, &components.Position{X: float64(50 + i*80), Y: 100})
-		world.AddComponent(dynamicObstacle, &components.Velocity{DX: float64((i + 1) * 20), DY: 0}) // Horizontal movement
-		world.AddComponent(dynamicObstacle, &components.Size{Width: 16, Height: 16})
-		world.AddComponent(dynamicObstacle, &components.DynamicObstacle{Damage: 10}) // Inflicts 10 damage on collision
-		world.AddComponent(dynamicObstacle, &components.OnGround{IsGrounded: false})
-	}
+	// Load level 1
+	levels.LoadLevel1(world, player)
 
 	// Add systems
 	world.AddSystem(&systems.InputSystem{})
@@ -143,7 +104,7 @@ func main() {
 	world.AddRenderable(healthBarSystem)
 	scoreRenderer := &systems.ScoreRenderer{PlayerEntity: player}
 	world.AddRenderable(scoreRenderer)
-	victoryScreen := &systems.VictoryScreen{}
+	victoryScreen := &systems.VictoryScreen{PlayerEntity: player}
 	world.AddRenderable(victoryScreen)
 
 	// Start the game
