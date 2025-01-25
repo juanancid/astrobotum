@@ -6,6 +6,7 @@ import (
 )
 
 type World struct {
+	currentLevel int
 	nextEntityID Entity
 	components   map[reflect.Type]map[Entity]Component
 	systems      []System
@@ -65,6 +66,21 @@ func (w *World) GetComponents(componentType reflect.Type) map[Entity]Component {
 	return w.components[componentType]
 }
 
+func (w *World) Clear(player Entity) {
+	// Remove all entities except the player
+	for componentType, entityMap := range w.components {
+		for entity := range entityMap {
+			if entity != player {
+				delete(entityMap, entity)
+			}
+		}
+		// If the component type has no entities left, remove the type
+		if len(entityMap) == 0 {
+			delete(w.components, componentType)
+		}
+	}
+}
+
 func (w *World) AddSystem(s System) {
 	w.systems = append(w.systems, s)
 }
@@ -105,4 +121,12 @@ func (w *World) Render(screen *ebiten.Image) {
 	for _, r := range w.renderables {
 		r.Render(w, screen)
 	}
+}
+
+func (w *World) SetCurrentLevel(level int) {
+	w.currentLevel = level
+}
+
+func (w *World) GetCurrentLevel() int {
+	return w.currentLevel
 }
